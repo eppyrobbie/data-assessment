@@ -26,11 +26,11 @@ module.exports = {
                 name varchar
             );
 
-            *****YOUR CODE HERE*****
+            
 
             CREATE TABLE cities(
                 city_id SERIAL PRIMARY KEY,
-                name VARCHAR() NOT NULL,
+                name VARCHAR NOT NULL,
                 rating INTEGER NOT NULL,
                 country_id INTEGER REFERENCES countries(country_id)
             );
@@ -240,41 +240,36 @@ module.exports = {
         sequelize.query(`
             SELECT * FROM countries;
         `)
-        .then(() => {
-            (dbRes) => {
-                res.status(200).send(dbRes[0])
-             }
-             
-        })
-    },
-    getCities: (req, res) => {
-        sequelize.query(`
-        SELECT city_id, cities.name, rating, country_id, countries.name
-        FROM cities
-            JOIN countries
-                ON cities.country_id = countries.country_id
-    
-        `)
-        .then(() => {
-            (dbRes) => {
-                res.status(200).send(dbRes[0])
-             }
-        })
-    },
-    deleteCity: (req, res) => {
-        sequelize.query(`
-        DELETE 
-        FROM cities
-        WHERE city = 'req.params' 
+        .then(dbRes => res.status(200).send(dbRes[0]))
         
-        `)
+    },
+   createCity: (req, res) => {
+        const { name, rating, countryId } = req.body
 
-        //I know this isn't correct. Couldn't quite figure out what the question was asking in the assessment. 
-        .then(() => {
-            (dbRes) => {
-                res.status(200).send(dbRes[0])
-             }
-        })
-       
-    }
+        sequelize.query(`
+            INSERT INTO cities(name, rating, country_id)
+            VALUES('${name}', ${rating}, ${countryId})
+        `).then(dbRes => res.status(200).send(dbRes[0]))
+   },
+
+   getCities: (req, res) => {
+    sequelize.query(`
+        SELECT ci.city_id, ci.name AS city, ci.rating, co.country_id, co.name AS country
+        FROM cities ci
+        JOIN countries co
+        ON ci.country_id = co.country_id
+    `).then(dbRes => res.status(200).send(dbRes[0]))
+   },
+
+   deleteCity: (req, res) => {
+        const { id } = req.params
+        sequelize.query(`
+            DELETE FROM CITIES
+            WHERE ${id} = cities.city_id
+        `).then(dbRes => res.status(200).send(dbRes[0]))
+   }
+
+
+    
+    
 }
